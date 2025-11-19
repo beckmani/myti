@@ -1,0 +1,4 @@
+# file: /Users/isaac/xdev/myti/stage_manager/classification_engine.py
+# hypothesis_version: 6.148.2
+
+['CARE', 'EXIT', 'HELLO', 'HELP', 'NEXT', 'PREVIOUS', 'UNKNOWN', 'anxious', 'assist', 'back', 'call', 'classification_rules', 'concerned', 'continue', 'current_stage', 'end', 'exit', 'forward', 'go back', 'go on', 'greetings', 'hello', 'help', 'hey', 'hi', 'leave', 'next', 'previous', 'proceed', 'quit', 'return', 'scared', 'stage', 'stages', 'stop', 'support', 'upset', 'worried']

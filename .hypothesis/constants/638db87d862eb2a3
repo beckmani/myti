@@ -1,0 +1,4 @@
+# file: /Users/isaac/xdev/myti/stage_manager/stage_manager.py
+# hypothesis_version: 6.148.2
+
+['CARE', 'ERROR', 'error_message', 'mcp_failed', 'mcp_server', 'timeout', 'url']

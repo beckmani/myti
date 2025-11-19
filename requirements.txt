@@ -1,0 +1,10 @@
+# Core dependencies
+hypothesis>=6.0.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Note: strends library needs to be installed separately
+# Install from source or local path if available:
+# pip install /path/to/strends

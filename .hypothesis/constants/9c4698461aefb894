@@ -1,0 +1,4 @@
+# file: /Users/isaac/xdev/myti/stage_manager/input_validator.py
+# hypothesis_version: 6.148.2
+
+['description', 'stage', 'stages', 'status', 'task', 'timeout']

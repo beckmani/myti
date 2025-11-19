@@ -1,0 +1,4 @@
+# file: /Users/isaac/xdev/myti/stage_manager/response_generator.py
+# hypothesis_version: 6.148.2
+
+['CARE', 'ERROR', 'EXIT', 'HELLO', 'HELP', 'NEXT', 'PREVIOUS', 'UNKNOWN', 'error_message', 'mcp_failed', 'message', 'status']
