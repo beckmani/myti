@@ -2,20 +2,19 @@
 
 ## Introduction
 
-This document specifies the requirements for a stage manager classifier agent built using the strends library in Python. The agent acts as a stage manager helping users complete stages in tasks. It receives user text input and classifies it into one of seven status codes (NEXT, PREVIOUS, EXIT, HELP, CARE, HELLO, UNKNOWN) based on the user's intent. The agent also receives a JSON context representing a task with multiple stages to inform its classification decisions. When the CARE status is detected, the agent integrates with an MCP server to call a caregiver before returning the status.
+This document specifies the requirements for a stage manager classifier agent in Python. The agent acts as a stage manager helping users complete stages in tasks. It receives user text input and classifies it into one of seven status codes (NEXT, PREVIOUS, EXIT, HELP, CARE, HELLO, UNKNOWN) based on the user's intent using a Large Language Model (LLM) for intelligent classification. The agent also receives a JSON context representing a task with multiple stages to inform its classification decisions.
 
 ## Glossary
 
 - **StageManager**: The classifier agent that analyzes user text input and assigns it to one of seven predefined status codes
-- **strends Library**: A Python library for building agent-based systems
 - **Status Code**: One of seven predefined values: NEXT, PREVIOUS, EXIT, HELP, CARE, HELLO, or UNKNOWN
 - **User Input**: Free-form text provided by the user expressing their intent
 - **Task Flow Context**: A JSON-structured representation of a task containing task name, description, status, and a list of stages with descriptions and timeouts
 - **Stage**: A discrete step within a task flow, containing a stage name, description, and timeout value
 - **Task Status**: The current execution state of a task (e.g., "not started", "in progress", "completed")
 - **Classification Result**: A JSON response containing the status code and free text message returned by the agent
-- **MCP Server**: Model Context Protocol server that provides external service integration capabilities
-- **Caregiver Service**: An external service accessible through the MCP server that handles care-related requests
+- **LLM (Large Language Model)**: An AI model that processes natural language to understand user intent and perform classification
+- **LLM Client**: The component that communicates with the LLM API to perform classification
 
 ## Requirements
 
@@ -28,7 +27,7 @@ This document specifies the requirements for a stage manager classifier agent bu
 1. WHEN a user provides text input to the StageManager THEN the StageManager SHALL accept the input as a string
 2. WHEN the text input is empty or contains only whitespace THEN the StageManager SHALL reject the input and return an error response
 3. WHEN the text input is provided THEN the StageManager SHALL process the input without modifying the original text
-4. WHEN the text input contains special characters or unicode THEN the StageManager SHALL handle them appropriately
+4. WHEN the text input contains special characters or unicode THEN the StageManager SHALL process them without raising encoding errors
 
 ### Requirement 2
 
@@ -48,13 +47,13 @@ This document specifies the requirements for a stage manager classifier agent bu
 
 ### Requirement 3
 
-**User Story:** As a developer, I want the agent to be built using the strends library, so that it follows established patterns for agent-based systems and is maintainable.
+**User Story:** As a developer, I want the agent to follow established patterns for agent-based systems, so that it is maintainable and follows best practices.
 
 #### Acceptance Criteria
 
-1. WHEN the StageManager is initialized THEN the StageManager SHALL use strends library components for agent structure
-2. WHEN the agent processes requests THEN the StageManager SHALL follow strends library patterns for message handling and state management
-3. WHEN the agent encounters errors THEN the StageManager SHALL use strends library error handling mechanisms
+1. WHEN the StageManager is initialized THEN the StageManager SHALL instantiate separate components for input validation, classification, and response generation
+2. WHEN the StageManager processes a classification request THEN the StageManager SHALL validate input, perform classification, and generate a response in sequence
+3. WHEN the StageManager encounters an error THEN the StageManager SHALL return a JSON response with status "ERROR" and a descriptive message
 
 ### Requirement 4
 
@@ -68,7 +67,7 @@ This document specifies the requirements for a stage manager classifier agent bu
 4. WHEN the task flow context is malformed or missing required fields THEN the StageManager SHALL return a clear error message
 5. WHEN no task flow context is provided THEN the StageManager SHALL classify based solely on the user input text
 
-### Requirement 9
+### Requirement 5
 
 **User Story:** As a user, I want the agent to understand the current stage of my day-to-day task from my text input, so that the classification is contextually aware of where I am in the workflow.
 
@@ -80,7 +79,7 @@ This document specifies the requirements for a stage manager classifier agent bu
 4. WHEN the current stage indicates the beginning of a task flow THEN the StageManager SHALL consider this when classifying PREVIOUS requests
 5. WHEN the current stage indicates the end of a task flow THEN the StageManager SHALL consider this when classifying NEXT requests
 
-### Requirement 5
+### Requirement 6
 
 **User Story:** As a developer, I want the agent to support configurable classification rules, so that the system can be adapted to different task categorization schemes.
 
@@ -90,7 +89,7 @@ This document specifies the requirements for a stage manager classifier agent bu
 2. WHEN classification rules are updated THEN the StageManager SHALL apply the new rules to subsequent classifications
 3. WHEN no configuration is provided THEN the StageManager SHALL use default classification rules
 
-### Requirement 6
+### Requirement 7
 
 **User Story:** As a user, I want the agent to handle ambiguous or unclear input gracefully, so that I receive a reasonable classification even when my intent is not perfectly clear.
 
@@ -100,23 +99,37 @@ This document specifies the requirements for a stage manager classifier agent bu
 2. WHEN the user input does not clearly match any status code pattern THEN the StageManager SHALL return the UNKNOWN status code
 3. WHEN the user input contains multiple intents THEN the StageManager SHALL prioritize the primary intent for classification
 
-### Requirement 7
-
-**User Story:** As a system administrator, I want the agent to integrate with an MCP server for caregiver services, so that care requests can be handled by external support systems.
-
-#### Acceptance Criteria
-
-1. WHEN the StageManager is initialized THEN the StageManager SHALL establish a connection to the MCP Server
-2. WHEN the MCP Server is unavailable during initialization THEN the StageManager SHALL log a warning and continue operation
-3. WHEN the connection to the MCP Server fails THEN the StageManager SHALL handle the failure gracefully without crashing
-
 ### Requirement 8
 
-**User Story:** As a user, I want the system to notify a caregiver when I express a need for care, so that I can receive timely support.
+**User Story:** As a developer, I want the classification engine to use an LLM for intent classification, so that the system can understand natural language input with high accuracy and handle complex or ambiguous user expressions.
 
 #### Acceptance Criteria
 
-1. WHEN the StageManager determines the status code is CARE THEN the StageManager SHALL call the Caregiver Service through the MCP Server before returning the status
-2. WHEN the Caregiver Service call succeeds THEN the StageManager SHALL return the CARE status code with confirmation of the caregiver notification
-3. WHEN the Caregiver Service call fails THEN the StageManager SHALL return the CARE status code with an error indication
-4. WHEN the MCP Server is unavailable THEN the StageManager SHALL return the CARE status code without caregiver notification and log the failure
+1. WHEN the ClassificationEngine is initialized THEN the ClassificationEngine SHALL establish a connection to an LLM service
+2. WHEN the ClassificationEngine classifies user input THEN the ClassificationEngine SHALL send the user input and task context to the LLM for analysis
+3. WHEN the LLM returns a classification response THEN the ClassificationEngine SHALL parse the response and extract the status code
+4. WHEN the LLM service is unavailable THEN the ClassificationEngine SHALL return an error response and log the failure
+5. WHEN the LLM returns an invalid or unparseable response THEN the ClassificationEngine SHALL return the UNKNOWN status code and log the error
+
+### Requirement 9
+
+**User Story:** As a developer, I want the LLM client to support configurable timeout and retry settings, so that the system can handle network issues and service delays gracefully.
+
+#### Acceptance Criteria
+
+1. WHEN the LLM Client is initialized with a configuration THEN the LLM Client SHALL load the API key, model name, endpoint URL, and timeout value from the configuration
+2. WHEN the LLM Client is initialized without a configuration THEN the LLM Client SHALL use default values for model name, endpoint URL, and timeout
+3. WHEN an LLM request exceeds the configured timeout value THEN the LLM Client SHALL terminate the request and return a timeout error
+4. WHEN an LLM request fails THEN the LLM Client SHALL retry the request according to the configured maximum retry count and retry delay
+5. WHEN all retry attempts are exhausted THEN the LLM Client SHALL return an error response indicating the failure
+
+### Requirement 10
+
+**User Story:** As a developer, I want the LLM prompts to include task context and stage information, so that the classification is contextually aware and accurate.
+
+#### Acceptance Criteria
+
+1. WHEN the ClassificationEngine sends a request to the LLM THEN the ClassificationEngine SHALL include the user input in the prompt
+2. WHEN task context is available THEN the ClassificationEngine SHALL include the task name, description, and current stage in the LLM prompt
+3. WHEN stage boundary information is available THEN the ClassificationEngine SHALL include whether the user is at the first or last stage in the LLM prompt
+4. WHEN the LLM prompt is constructed THEN the ClassificationEngine SHALL include clear instructions about the seven status codes and their meanings
