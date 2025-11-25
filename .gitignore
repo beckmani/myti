@@ -1,0 +1,27 @@
+# IDE and Editor
+.vscode/
+
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Testing
+.pytest_cache/
+.hypothesis/
+
+# Environment variables
+.env
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Lock files
+uv.lock
