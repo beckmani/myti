@@ -1,0 +1,54 @@
+{
+  "classification_rules": {
+    "NEXT": [
+      "next",
+      "continue",
+      "proceed",
+      "forward",
+      "go on",
+      "advance"
+    ],
+    "PREVIOUS": [
+      "back",
+      "previous",
+      "return",
+      "go back",
+      "rewind"
+    ],
+    "EXIT": [
+      "exit",
+      "quit",
+      "leave",
+      "stop",
+      "end",
+      "cancel"
+    ],
+    "HELP": [
+      "help",
+      "assist",
+      "support",
+      "call",
+      "guide",
+      "info"
+    ],
+    "CARE": [
+      "worried",
+      "anxious",
+      "scared",
+      "concerned",
+      "upset",
+      "stressed"
+    ],
+    "HELLO": [
+      "hello",
+      "hi",
+      "hey",
+      "greetings",
+      "howdy"
+    ]
+  },
+  "mcp_server": {
+    "url": "http://localhost:8080",
+    "timeout": 30
+  }
+}
