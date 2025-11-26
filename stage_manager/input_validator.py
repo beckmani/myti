@@ -5,7 +5,12 @@ import logging
 from typing import Dict, Any, Optional
 
 
+# Configure logger for this module
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 
 class InputValidator:
@@ -30,17 +35,26 @@ class InputValidator:
             
         Requirements: 1.1, 1.2
         """
-        if user_input is None:
+        try:
+            if user_input is None:
+                logger.warning("User input is None")
+                return False
+            
+            if not isinstance(user_input, str):
+                logger.warning(f"User input is not a string, got type: {type(user_input)}")
+                return False
+            
+            # Check if string is empty or contains only whitespace
+            if not user_input or user_input.isspace():
+                logger.warning("User input is empty or whitespace-only")
+                return False
+            
+            logger.debug(f"User input validated successfully: '{user_input[:50]}...'")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Unexpected error during user input validation: {e}", exc_info=True)
             return False
-        
-        if not isinstance(user_input, str):
-            return False
-        
-        # Check if string is empty or contains only whitespace
-        if not user_input or user_input.isspace():
-            return False
-        
-        return True
     
     @staticmethod
     def validate_task_context(task_context: Dict[str, Any]) -> bool:
@@ -56,42 +70,55 @@ class InputValidator:
             
         Requirements: 4.1, 4.2, 4.4
         """
-        if task_context is None:
-            return False
-        
-        if not isinstance(task_context, dict):
-            return False
-        
-        # Check for required top-level fields
-        required_fields = ["task", "description", "status", "stages"]
-        for field in required_fields:
-            if field not in task_context:
-                logger.warning(f"Task context missing required field: {field}")
-                return False
-        
-        # Validate stages is a list
-        if not isinstance(task_context["stages"], list):
-            logger.warning("Task context 'stages' field must be a list")
-            return False
-        
-        # Validate each stage has required fields
-        for idx, stage in enumerate(task_context["stages"]):
-            if not isinstance(stage, dict):
-                logger.warning(f"Stage at index {idx} is not a dictionary")
+        try:
+            if task_context is None:
+                logger.warning("Task context is None")
                 return False
             
-            stage_required_fields = ["stage", "description", "timeout"]
-            for field in stage_required_fields:
-                if field not in stage:
-                    logger.warning(f"Stage at index {idx} missing required field: {field}")
+            if not isinstance(task_context, dict):
+                logger.warning(f"Task context is not a dictionary, got type: {type(task_context)}")
+                return False
+            
+            # Check for required top-level fields
+            required_fields = ["task", "description", "status", "stages"]
+            for field in required_fields:
+                if field not in task_context:
+                    logger.warning(f"Task context missing required field: {field}")
                     return False
             
-            # Validate timeout is a number
-            if not isinstance(stage["timeout"], (int, float)):
-                logger.warning(f"Stage at index {idx} has invalid timeout type")
+            # Validate stages is a list
+            if not isinstance(task_context["stages"], list):
+                logger.warning(f"Task context 'stages' field must be a list, got type: {type(task_context['stages'])}")
                 return False
-        
-        return True
+            
+            # Validate each stage has required fields
+            for idx, stage in enumerate(task_context["stages"]):
+                if not isinstance(stage, dict):
+                    logger.warning(f"Stage at index {idx} is not a dictionary, got type: {type(stage)}")
+                    return False
+                
+                stage_required_fields = ["stage", "description", "timeout"]
+                for field in stage_required_fields:
+                    if field not in stage:
+                        logger.warning(f"Stage at index {idx} missing required field: {field}")
+                        return False
+                
+                # Validate timeout is a number
+                if not isinstance(stage["timeout"], (int, float)):
+                    logger.warning(f"Stage at index {idx} has invalid timeout type: {type(stage['timeout'])}")
+                    return False
+                
+                # Validate timeout is non-negative
+                if stage["timeout"] < 0:
+                    logger.warning(f"Stage at index {idx} has negative timeout: {stage['timeout']}")
+                    return False
+            
+            logger.debug(f"Task context validated successfully for task: {task_context.get('task')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Unexpected error during task context validation: {e}", exc_info=True)
+            return False
     
     @staticmethod
     def parse_task_context(task_json: str) -> Optional[Dict[str, Any]]:
@@ -109,15 +136,26 @@ class InputValidator:
             
         Requirements: 4.1, 4.4
         """
-        if task_json is None:
-            return None
-        
-        if not isinstance(task_json, str):
-            return None
-        
         try:
+            if task_json is None:
+                logger.warning("Task JSON is None")
+                return None
+            
+            if not isinstance(task_json, str):
+                logger.warning(f"Task JSON is not a string, got type: {type(task_json)}")
+                return None
+            
+            if not task_json.strip():
+                logger.warning("Task JSON is empty or whitespace-only")
+                return None
+            
             parsed = json.loads(task_json)
+            logger.debug("Task context JSON parsed successfully")
             return parsed
+            
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse task context JSON: {e}")
+            logger.error(f"Failed to parse task context JSON: {e}", exc_info=True)
             raise
+        except Exception as e:
+            logger.error(f"Unexpected error during JSON parsing: {e}", exc_info=True)
+            return None
